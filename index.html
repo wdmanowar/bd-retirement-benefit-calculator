@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>অবসর সুবিধা ক্যালকুলেটর</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <header class="head">
+      <h1>অবসর সুবিধা ক্যালকুলেটর</h1>
+      <p>সরকারি চাকরিজীবীর ছুটি নগদায়ন, আনুতোষিক ও মাসিক পেনশনের আনুমানিক হিসাব।</p>
+    </header>
+
+    <div class="layout">
+      <form id="calcForm" class="panel" novalidate>
+        <h2>তথ্য দিন</h2>
+
+        <label class="field">
+          <span>শেষ মূল বেতন (টাকা)</span>
+          <input type="text" id="basic" inputmode="decimal" placeholder="যেমন ৩৫০০০" autocomplete="off">
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span>পেনশনযোগ্য চাকরিকাল (বছর)</span>
+            <input type="text" id="years" inputmode="numeric" placeholder="যেমন ২৫" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>অতিরিক্ত মাস</span>
+            <input type="text" id="months" inputmode="numeric" placeholder="০–১১" autocomplete="off">
+          </label>
+        </div>
+        <p class="hint">অতিরিক্ত মাস ৬ বা তার বেশি হলে পূর্ণ এক বছর ধরা হবে। দুটি ঘর ফাঁকা রেখে নিচে তারিখ দিলে চাকরিকাল তারিখ থেকে নেওয়া হবে।</p>
+
+        <label class="field">
+          <span>পেনশনের কত শতাংশ সমর্পণ করবেন</span>
+          <input type="text" id="surrender" inputmode="decimal" value="৫০" autocomplete="off">
+        </label>
+
+        <h3>ছুটির হিসাব</h3>
+        <p class="hint">তারিখ দিলে চাকরিকাল ও অর্জিত ছুটির জের নিজে থেকে বের হবে।</p>
+
+        <div class="row even">
+          <label class="field">
+            <span>চাকরিতে যোগদানের তারিখ</span>
+            <input type="date" id="joinDate">
+          </label>
+          <label class="field">
+            <span>পিআরএল শুরুর তারিখ</span>
+            <input type="date" id="prlDate">
+          </label>
+        </div>
+
+        <div class="row even">
+          <label class="field">
+            <span>ভোগকৃত অর্জিত ছুটি (দিন)</span>
+            <input type="text" id="leaveTaken" inputmode="decimal" placeholder="০" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>অসাধারণ ছুটি বা কর্তব্যবহির্ভূত কাল (দিন)</span>
+            <input type="text" id="nonDuty" inputmode="decimal" placeholder="০" autocomplete="off">
+          </label>
+        </div>
+
+        <label class="field">
+          <span>প্রতি কত দিনের কর্মকালে ১ দিন অর্জিত ছুটি</span>
+          <input type="text" id="divisor" inputmode="decimal" value="১১" autocomplete="off">
+        </label>
+
+        <h3>ছুটি নগদায়ন</h3>
+
+        <label class="field">
+          <span>নগদায়নযোগ্য ছুটি (মাস, সর্বোচ্চ ১৮)</span>
+          <input type="text" id="leaveMonths" inputmode="decimal" placeholder="ফাঁকা রাখলে ছুটির হিসাব থেকে নেবে" autocomplete="off">
+        </label>
+
+        <label class="field">
+          <span>মূল বেতনের বাইরে নগদায়নে ধরা ভাতা (মাসিক, ঐচ্ছিক)</span>
+          <input type="text" id="allowance" inputmode="decimal" placeholder="০" autocomplete="off">
+        </label>
+
+        <details class="rates">
+          <summary>হারের তালিকা দেখুন ও পরিবর্তন করুন</summary>
+          <p class="hint">ডিফল্ট হার ২ সেপ্টেম্বর ২০২৬-এর অর্থ বিভাগের প্রজ্ঞাপন অনুযায়ী। নিজে যাচাই করে প্রয়োজনে বদলান।</p>
+          <div class="rate-wrap">
+            <table id="pensionRates">
+              <caption>পেনশনের হার (মূল বেতনের %)</caption>
+              <thead><tr><th>বছর</th><th>হার %</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <table id="gratuityRates">
+              <caption>আনুতোষিকের হার (১ টাকা সমর্পিত পেনশনে)</caption>
+              <thead><tr><th>চাকরিকাল</th><th>টাকা</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </details>
+
+        <div class="actions">
+          <button type="submit" class="primary">হিসাব করুন</button>
+          <button type="reset" id="resetBtn" class="ghost">মুছে ফেলুন</button>
+        </div>
+        <p id="message" class="message" role="alert" hidden></p>
+      </form>
+
+      <section class="panel results" id="results" aria-live="polite">
+        <h2>ফলাফল</h2>
+        <p id="placeholder" class="empty">বাঁ পাশের তথ্য পূরণ করে "হিসাব করুন" চাপুন।</p>
+
+        <div id="output" hidden>
+          <article class="item" id="leaveBalanceCard" hidden>
+            <h3>অর্জিত ছুটির জের</h3>
+            <p class="amount" id="outBalance">—</p>
+            <p class="note" id="noteBalance"></p>
+            <dl class="mini">
+              <div><dt>কর্মকাল</dt><dd id="lServiceDays">—</dd></div>
+              <div><dt>অর্জিত ছুটি (মোট)</dt><dd id="lEarned">—</dd></div>
+              <div><dt>ভোগকৃত ছুটি</dt><dd id="lTaken">—</dd></div>
+              <div><dt>পিআরএল শেষ হবে</dt><dd id="lPrlEnd">—</dd></div>
+            </dl>
+          </article>
+
+          <article class="item">
+            <h3>ছুটি নগদায়ন (লাম্পগ্র্যান্ট)</h3>
+            <p class="amount" id="outLeave">—</p>
+            <p class="note" id="noteLeave"></p>
+          </article>
+
+          <article class="item">
+            <h3>আনুতোষিক (গ্র্যাচুইটি)</h3>
+            <p class="amount" id="outGratuity">—</p>
+            <p class="note" id="noteGratuity"></p>
+          </article>
+
+          <article class="item">
+            <h3>মাসিক পেনশন (সমর্পণের পর)</h3>
+            <p class="amount" id="outNet">—</p>
+            <p class="note" id="notePension"></p>
+          </article>
+
+          <dl class="breakdown">
+            <div><dt>পেনশনের হার</dt><dd id="bRate">—</dd></div>
+            <div><dt>মোট মাসিক পেনশন (সমর্পণের আগে)</dt><dd id="bGross">—</dd></div>
+            <div><dt>সমর্পিত পেনশন</dt><dd id="bSurrender">—</dd></div>
+            <div><dt>আনুতোষিকের হার</dt><dd id="bGRate">—</dd></div>
+          </dl>
+        </div>
+
+        <p class="disclaimer">এটি শুধু আনুমানিক হিসাব। চূড়ান্ত অঙ্ক নির্ধারণ করবে আপনার হিসাব রক্ষণ অফিস ও অর্থ বিভাগের বিধান। সমর্পণের সর্বোচ্চ সীমা, ছুটি নগদায়নে কোন কোন ভাতা ধরা হবে এবং আনুতোষিকের হারের ভিত্তি সংশ্লিষ্ট প্রজ্ঞাপন থেকে যাচাই করুন।</p>
+      </section>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
